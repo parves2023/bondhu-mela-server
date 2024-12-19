@@ -7,16 +7,16 @@ const port = process.env.PORT || 5000;
 const mongoose = require("mongoose");
 
 
-app.use(
-  cors({
-    origin: "https://visapilot.netlify.app", // Specify your frontend domain here
-    methods: ["GET", "POST", "PUT", "DELETE"], // Adjust methods as needed
-    allowedHeaders: ["Content-Type"], // You can add more headers if needed
-  })
-);
+// app.use(
+//   cors({
+//     origin: "https://bondhumela.netlify.app", // Specify your frontend domain here
+//     methods: ["GET", "POST", "PUT", "DELETE"], // Adjust methods as needed
+//     allowedHeaders: ["Content-Type"], // You can add more headers if needed
+//   })
+// );
 
 app.use(express.json());
-// app.use(cors());
+app.use(cors());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.3tilc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -286,22 +286,53 @@ app.get("/posts", async (req, res) => {
 
 
 
+ // Fetch posts by author's email
+//  app.get("/posts", async (req, res) => {
+//   const { authorEmail } = req.query; // Get email from query params
+//   console.log(authorEmail);
+  
+//   try {
+//     const posts = await mongoose.connection.db
+//       .collection("posts")
+//       .find({ authorEmail })  // Filter posts by authorEmail
+//       .toArray();
+//     res.status(200).json(posts);
+//   } catch (error) {
+//     console.error("Error fetching posts:", error);
+//     res.status(500).json({ success: false, error: "Failed to fetch posts." });
+//   }
+// });
 
 
-// Fetch posts by author's email
-app.get("/posts", async (req, res) => {
-  const { authorEmail } = req.query; // Get email from query params
+
+
+// Fetch posts by author's UID
+app.get("/myposts", async (req, res) => {
+  const { author } = req.query; // Get UID from query params
+  console.log("Filtering posts by author UID:", author);
+
+  // Validate that author is provided
+  if (!author) {
+    return res.status(400).json({ success: false, error: "Author UID is required." });
+  }
+
   try {
-    const posts = await mongoose.connection.db
-      .collection("posts")
-      .find({ authorEmail })  // Filter posts by authorEmail
+    const posts = await postsCollection
+      .find({ author }) // Filter posts by author UID
       .toArray();
+
     res.status(200).json(posts);
   } catch (error) {
     console.error("Error fetching posts:", error);
     res.status(500).json({ success: false, error: "Failed to fetch posts." });
   }
 });
+
+
+
+
+
+
 
 
 
